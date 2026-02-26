@@ -107,7 +107,7 @@ fi
 
 # Retreive ELBv2 URL via aws elbv2 describe-load-balancers --query and print it to the screen
 #https://awscli.amazonaws.com/v2/documentation/api/latest/reference/elbv2/describe-load-balancers.html
-URL=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].DNSName' --filter "Name=name,Values=${9}")
+URL=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].DNSName' --name "${9}")
 echo $URL
 
 # end of outer fi - based on arguments.txt content
