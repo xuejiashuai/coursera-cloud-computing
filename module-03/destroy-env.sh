@@ -36,7 +36,7 @@ if [ "$INSTANCEIDS" != "" ]
         --target-group-arn ${TARGETARN} \
         --targets Id=${INSTANCEID}
       echo "Waiting for target $INSTANCEID to be deregistered..."
-      aws elbv2 wait target-deregistered
+      aws elbv2 wait target-deregistered --target-group-arn ${TARGETARN} --targets Id=${INSTANCEID}
       done
   else
     echo 'There are no running or pending values in $INSTANCEIDS to wait for...'
