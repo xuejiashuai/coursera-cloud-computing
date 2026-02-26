@@ -52,7 +52,7 @@ aws elbv2 create-load-balancer \
     --security-groups $4 \
     --scheme internet-facing \
     --type application
-ELBARN=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].LoadBalancerArn' --filter "Name=name,Values=${9}")
+ELBARN=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].LoadBalancerArn' --name "${9}")
 echo $ELBARN
 
 # AWS elbv2 wait for load-balancer available
