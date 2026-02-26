@@ -20,7 +20,7 @@ fi
 
 echo "Finding TARGETARN..."
 # https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/describe-target-groups.html
-TARGETARN=
+TARGETARN=$(aws elbv2 describe-target-groups --output=text --query='TargetGroups[*].TargetGroupArn')
 echo $TARGETARN
 
 if [ "$INSTANCEIDS" != "" ]
@@ -32,7 +32,9 @@ if [ "$INSTANCEIDS" != "" ]
     for INSTANCEID in ${INSTANCEIDSARRAY[@]};
       do
       echo "Deregistering target $INSTANCEID..."
-      aws elbv2 deregister-targets 
+      aws elbv2 deregister-targets \
+        --target-group-arn ${TARGETARN} \
+        --targets Id=${INSTANCEID}
       echo "Waiting for target $INSTANCEID to be deregistered..."
       aws elbv2 wait target-deregistered
       done
@@ -44,7 +46,7 @@ fi
 echo "Now terminating the detached INSTANCEIDS..."
 if [ "$INSTANCEIDS" != "" ]
   then
-    aws ec2 terminate-instances
+    aws ec2 terminate-instances --instance-ids $INSTANCEIDS
     echo "Waiting for all instances report state as TERMINATED..."
     aws ec2 wait instance-terminated
     echo "Finished destroying instances..."
@@ -54,7 +56,7 @@ fi
 
 echo "Looking up ELB ARN..."
 # https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/describe-load-balancers.html
-ELBARN=
+ELBARN=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].LoadBalancerArn')
 echo $ELBARN
 
 # Collect ListenerARN
