@@ -42,7 +42,7 @@ aws elbv2 create-target-group \
     --port 80 \
     --target-type instance \
     --vpc-id $VPCID
-TARGETARN=$(aws elbv2 describe-target-groups --output=text --query='TargetGroups[*].TargetGroupArn' --filter "Name=name,Values=${8}")
+TARGETARN=$(aws elbv2 describe-target-groups --output=text --query='TargetGroups[*].TargetGroupArn' --name "${8}")
 
 echo "Creating ELBv2 Elastic Load Balancer..."
 #https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/create-load-balancer.html
