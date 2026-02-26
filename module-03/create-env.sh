@@ -97,7 +97,7 @@ if [ "$INSTANCEIDS" != "" ]
     INSTANCEIDSARRAY=($INSTANCEIDS)
     for INSTANCEID in ${INSTANCEIDSARRAY[@]};
       do
-      aws elbv2 register-targets 
+      aws elbv2 register-targets \
         --target-group-arn ${TARGETARN} \
         --targets Id=${INSTANCEID}
       done
