@@ -105,7 +105,7 @@ echo 'Creating Auto Scaling Group...'
 # Create Autoscaling group ASG - needs to come after Target Group is created
 # Create autoscaling group
 # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/autoscaling/create-auto-scaling-group.html
-aws autoscaling create-auto-scaling-group --auto-scaling-group-name ${13} --launch-template LaunchTemplateId=${LAUNCHTEMPLATEID} --min-size ${14} --max-size ${15} --desired-capacity ${16} --vpc-zone-identifier "${SUBNET2A},${SUBNET2B}" --tags Key=module,Value=${17} Key=Name,Value=${13}
+aws autoscaling create-auto-scaling-group --auto-scaling-group-name ${13} --launch-template LaunchTemplateId=${LAUNCHTEMPLATEID} --min-size ${14} --max-size ${15} --desired-capacity ${16} --vpc-zone-identifier "${SUBNET2A},${SUBNET2B}" --tags Key=module,Value=${17} Key=Name,Value=${13} --target-group-arns ${TARGETARN} --health-check-type ELB
 
 echo 'Waiting for Auto Scaling Group to spin up EC2 instances and attach them to the TargetARN...'
 # Create waiter for registering targets
