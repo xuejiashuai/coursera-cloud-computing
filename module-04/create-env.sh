@@ -105,12 +105,13 @@ echo 'Creating Auto Scaling Group...'
 # Create Autoscaling group ASG - needs to come after Target Group is created
 # Create autoscaling group
 # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/autoscaling/create-auto-scaling-group.html
-aws autoscaling create-auto-scaling-group --auto-scaling-group-name ${13} --launch-template ${LAUNCHTEMPLATEID} --min-size ${14} --max-size ${15} --desired-capacity ${16} --vpc-zone-identifier ${SUBNET2A} ${SUBNET2B} --tags Key=module,Value=${17} Key=Name,Value=${13}
+aws autoscaling create-auto-scaling-group --auto-scaling-group-name ${13} --launch-template ${LAUNCHTEMPLATEID} --min-size ${14} --max-size ${15} --desired-capacity ${16} --vpc-zone-identifier "${SUBNET2A},${SUBNET2B}" --tags Key=module,Value=${17} Key=Name,Value=${13}
 
 echo 'Waiting for Auto Scaling Group to spin up EC2 instances and attach them to the TargetARN...'
 # Create waiter for registering targets
 # https://docs.aws.amazon.com/cli/latest/reference/elbv2/wait/target-in-service.html
-aws elbv2 wait target-in-service
+aws elbv2 wait target-in-service \
+  --target-group-arn ${TARGETARN}
 echo "Targets attached to Auto Scaling Group..."
 
 # Collect Instance IDs
@@ -119,7 +120,7 @@ INSTANCEIDS=$(aws ec2 describe-instances --output=text --query 'Reservations[*].
 
 if [ "$INSTANCEIDS" != "" ]
   then
-    aws ec2 wait instance-running
+    aws ec2 wait instance-running --instance-ids ${INSTANCEIDS}
     echo "Finished launching instances..."
   else
     echo 'There are no running or pending values in $INSTANCEIDS to wait for...'
