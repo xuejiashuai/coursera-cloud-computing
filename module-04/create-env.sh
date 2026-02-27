@@ -64,8 +64,8 @@ aws ec2 create-launch-template \
 echo "Launch Template created..."
 
 # Retreive the Launch Template ID using a --query
-LAUNCHTEMPLATEID=$(aws ec2 describe-launch-templates --output=text --launch-template-names {$12} --query "LaunchTemplates[0].LaunchTemplateId")
-
+LAUNCHTEMPLATEID=$(aws ec2 describe-launch-templates --output=text --launch-template-names "{$12}" --query "LaunchTemplates[0].LaunchTemplateId")
+echo $LAUNCHTEMPLATEID
 echo 'Creating the TARGET GROUP and storing the ARN in $TARGETARN'
 # https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/create-target-group.html
 aws elbv2 create-target-group \
