@@ -68,11 +68,23 @@ LAUNCHTEMPLATEID=$(aws ec2 describe-launch-templates --output=text --launch-temp
 
 echo 'Creating the TARGET GROUP and storing the ARN in $TARGETARN'
 # https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/create-target-group.html
+aws elbv2 create-target-group \
+    --name $8 \
+    --protocol HTTP \
+    --port 80 \
+    --target-type instance \
+    --vpc-id $VPCID
 TARGETARN=$(aws elbv2 describe-target-groups --output=text --query='TargetGroups[*].TargetGroupArn' --name "${8}")
 echo $TARGETARN
 
 echo "Creating ELBv2 Elastic Load Balancer..."
 #https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/create-load-balancer.html
+aws elbv2 create-load-balancer \
+    --name $9 \
+    --subnets $SUBNET2A $SUBNET2B \
+    --security-groups $4 \
+    --scheme internet-facing \
+    --type application
 ELBARN=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].LoadBalancerArn' --name "${9}")
 echo $ELBARN
 
