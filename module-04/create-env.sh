@@ -61,16 +61,16 @@ aws ec2 create-launch-template
 echo "Launch Template created..."
 
 # Retreive the Launch Template ID using a --query
-LAUNCHTEMPLATEID=
+LAUNCHTEMPLATEID=$(aws ec2 describe-launch-templates --output=text --launch-template-names {$12} --query "LaunchTemplates[0].LaunchTemplateId")
 
 echo 'Creating the TARGET GROUP and storing the ARN in $TARGETARN'
 # https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/create-target-group.html
-TARGETARN=
+TARGETARN=$(aws elbv2 describe-target-groups --output=text --query='TargetGroups[*].TargetGroupArn' --name "${8}")
 echo $TARGETARN
 
 echo "Creating ELBv2 Elastic Load Balancer..."
 #https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/create-load-balancer.html
-ELBARN=
+ELBARN=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].LoadBalancerArn' --name "${9}")
 echo $ELBARN
 
 # Decrease the deregistration timeout (deregisters faster than the default 300 second timeout per instance)
@@ -84,13 +84,13 @@ aws elbv2 wait load-balancer-available
 echo "Load balancer available..."
 # create AWS elbv2 listener for HTTP on port 80
 #https://awscli.amazonaws.com/v2/documentation/api/latest/reference/elbv2/create-listener.html
-aws elbv2 create-listener 
+aws elbv2 create-listener --load-balancer-arn ${ELBARN} --protocol HTTP --port 80 --default-actions Type=forward,TargetGroupArn=${TARGETARN}
 
 echo 'Creating Auto Scaling Group...'
 # Create Autoscaling group ASG - needs to come after Target Group is created
 # Create autoscaling group
 # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/autoscaling/create-auto-scaling-group.html
-aws autoscaling create-auto-scaling-group 
+aws autoscaling create-auto-scaling-group --auto-scaling-group-name ${13} --launch-template ${LAUNCHTEMPLATEID} --min-size ${14} --max-size ${15} --desired-capacity ${16} --vpc-zone-identifier ${SUBNET2A} ${SUBNET2B} --tags Key=module,Value=${17} Key=Name,Value=${13}
 
 echo 'Waiting for Auto Scaling Group to spin up EC2 instances and attach them to the TargetARN...'
 # Create waiter for registering targets
