@@ -68,12 +68,24 @@ LAUNCHTEMPLATEID=
 
 echo "Creating the TARGET GROUP and storing the ARN in \$TARGETARN"
 # https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/create-target-group.html
-TARGETARN=
+aws elbv2 create-target-group \
+    --name $8 \
+    --protocol HTTP \
+    --port 80 \
+    --target-type instance \
+    --vpc-id $VPCID
+TARGETARN=$(aws elbv2 describe-target-groups --output=text --query='TargetGroups[*].TargetGroupArn' --name "${8}")
 echo $TARGETARN
 
 echo "Creating ELBv2 Elastic Load Balancer..."
 #https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/create-load-balancer.html
-ELBARN=
+aws elbv2 create-load-balancer \
+    --name $9 \
+    --subnets $SUBNET2A $SUBNET2B \
+    --security-groups $4 \
+    --scheme internet-facing \
+    --type application
+ELBARN=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].LoadBalancerArn' --name "${9}")
 echo $ELBARN
 
 # AWS elbv2 wait for load-balancer available
@@ -89,12 +101,12 @@ echo 'Creating Auto Scaling Group...'
 # Create Autoscaling group ASG - needs to come after Target Group is created
 # Create autoscaling group
 # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/autoscaling/create-auto-scaling-group.html
-aws autoscaling create-auto-scaling-group 
+aws autoscaling create-auto-scaling-group --auto-scaling-group-name ${13} --launch-template LaunchTemplateId=${LAUNCHTEMPLATEID} --min-size ${14} --max-size ${15} --desired-capacity ${16} --vpc-zone-identifier "${SUBNET2A},${SUBNET2B}" --tags Key=module,Value=${17} Key=Name,Value=${13} --target-group-arns ${TARGETARN} --health-check-type ELB
 
 echo 'Waiting for Auto Scaling Group to spin up EC2 instances and attach them to the TargetARN...'
 # Create waiter for registering targets
 # https://docs.aws.amazon.com/cli/latest/reference/elbv2/wait/target-in-service.html
-aws elbv2 wait target-in-service --target-group-arn 
+aws elbv2 wait target-in-service --target-group-arn $TARGETARN
 echo "Targets attached to Auto Scaling Group..."
 
 # Collect Instance IDs
@@ -112,42 +124,42 @@ fi
 # Add S3api commands to create two S3 buckets
 # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/s3api/index.html
 echo "Creating S3 bucket: ${19}..."
-aws s3api create-bucket 
+aws s3api create-bucket --bucket ${19}
 echo "Created S3 bucket: ${19}..."
 
 echo "Creating S3 bucket: ${20}..."
-aws s3api create-bucket 
+aws s3api create-bucket --bucket ${20}
 echo "Created S3 bucket: ${20}..."
 
 # S3 commands
 # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/s3/index.html
 # Upload illinoistech.png and rohit.jpg to bucket ${19}
 echo "Uploading image: ./images/illinoistech.png to s3://${19}..."
-aws s3 cp 
+aws s3 cp ./images/illinoistech.png s3://${19}
 echo "Uploaded image: ./images/illinoistech.png to s3://${19}..."
 
 echo "Uploading image: ./images/rohit.jpg to s3://${19}..."
-aws s3 cp 
+aws s3 cp ./images/rohit.jpg s3://${19}
 echo "Uploaded image: ./images/rohit.jpg to s3://${19}..."
 
 echo "Listing content of bucket: s3://${19}..."
-aws s3 ls 
+aws s3 ls s3://${19}
 
 # Upload ranking.jpg and elevate.webp to bucket ${20}
 echo "Uploading image: ./images/elevate.webp to s3://${20}..."
-aws s3 cp 
+aws s3 cp ./images/elevate.webp s3://${20}
 echo "Uploaded image: ./images/elevate.webp to s3://${20}..."
 
 echo "Uploading image: ./images/ranking.jpg to s3://${20}..."
-aws s3 cp 
+aws s3 cp ./images/ranking.jpg s3://${20}
 echo "Uploaded image: ./images/ranking.jpg to s3://${20}..."
 
 echo "Listing content of bucket: s3://${20}..."
-aws s3 ls 
+aws s3 ls s3://${20}
 
 # Retreive ELBv2 URL via aws elbv2 describe-load-balancers --query and print it to the screen
 #https://awscli.amazonaws.com/v2/documentation/api/latest/reference/elbv2/describe-load-balancers.html
-URL=
+URL=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].DNSName' --name "${9}")
 echo $URL
 
 # end of outer fi - based on arguments.txt content
