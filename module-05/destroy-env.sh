@@ -164,7 +164,7 @@ else
 fi 
 
 # Query for bucket names, delete objects then buckets
-MYS3BUCKETS=$(aws s3api list-buckets )
+MYS3BUCKETS=$(aws s3api list-buckets)
 MYS3BUCKETS_ARRAY=($MYS3BUCKETS)
 
 #check for if list of buckets is non-zero (populated)
@@ -173,7 +173,7 @@ if [ -n "$MYS3BUCKETS" ]
     echo "Looping through array of buckets to create array of objects..."
     for j in "${MYS3BUCKETS_ARRAY[@]}"
     do
-    MYKEYS=$(aws s3api list-objects-v2 )
+    MYKEYS=$(aws s3api list-objects-v2 --bucket $j)
     MYKEYS_ARRAY=($MYKEYS)
     echo "End of looping through array of buckets..."
 
