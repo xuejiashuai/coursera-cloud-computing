@@ -32,11 +32,11 @@ if [ "$ASGNAMES" != "" ]
 
       aws autoscaling update-auto-scaling-group \
         --auto-scaling-group-name $ASGNAME \
-        --min-size
+        --min-size 0
 
       aws autoscaling update-auto-scaling-group \
       --auto-scaling-group-name $ASGNAME \
-      --desired-capacity
+      --desired-capacity 0
   
      if [ "$INSTANCEIDS" != "" ]
        then
@@ -75,9 +75,9 @@ if [ "$INSTANCEIDS" != "" ]
     for INSTANCEID in ${INSTANCEIDSARRAY[@]};
       do
       echo "Deregistering target $INSTANCEID..."
-      aws elbv2 deregister-targets 
+      aws elbv2 deregister-targets --target-group-arn $TARGETARN --targets Id=$INSTANCEID
       echo "Waiting for target $INSTANCEID to be deregistered..."
-      aws elbv2 wait target-deregistered 
+      aws elbv2 wait target-deregistered --target-group-arn $TARGETARN --targets Id=$INSTANCEID
       done
   else
     echo 'There are no running or pending values in $INSTANCEIDS to wait for...'
@@ -85,7 +85,7 @@ fi
 
 echo "Looking up ELB ARN..."
 # https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/describe-load-balancers.html
-ELBARN=
+ELBARN=$(aws elbv2 describe-load-balancers --output=text --query='LoadBalancers[*].LoadBalancerArn')
 echo $ELBARN
 
 # Collect ListenerARN
