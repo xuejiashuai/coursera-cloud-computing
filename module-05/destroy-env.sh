@@ -121,12 +121,12 @@ if [ "$ELBARN" = "" ];
 else
   echo "Issuing Command to delete Load Balancer..."
   # https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/delete-load-balancer.html
-  aws elbv2 delete-load-balancer 
+  aws elbv2 delete-load-balancer --load-balancer-arn $ELBARN
   echo "Load Balancer delete command has been issued..."
 
   echo "Waiting for ELB: $ELBARN to be deleted..."
   # https://awscli.amazonaws.com/v2/documentation/api/2.0.34/reference/elbv2/wait/load-balancers-deleted.html#examples
-  aws elbv2 wait load-balancers-deleted 
+  aws elbv2 wait load-balancers-deleted --load-balancer-arns $ELBARN
   echo "ELB: $ELBARN deleted..." 
 fi
 
@@ -142,7 +142,7 @@ else
     for ASGNAME in ${ASGNAMESARRAY[@]};
       do
       echo "Deleting $ASGNAME..."
-      aws autoscaling delete-auto-scaling-group 
+      aws autoscaling delete-auto-scaling-group --auto-scaling-group-name $ASGNAME
       echo "Deleted $ASGNAME..."
       done
 # End of if for checking on ASGs
@@ -181,8 +181,8 @@ if [ -n "$MYS3BUCKETS" ]
       for k in "${MYKEYS_ARRAY[@]}"
       do
       echo "Deleting object $k in bucket $j..."
-      aws s3api delete-object 
-      aws s3api wait object-not-exists 
+      aws s3api delete-object --bucket $j --key $k
+      aws s3api wait object-not-exists --bucket $j --key $k
       echo "Deleted object $k in bucket $j..."
       done
     done
@@ -190,8 +190,8 @@ if [ -n "$MYS3BUCKETS" ]
     for l in "${MYS3BUCKETS_ARRAY[@]}"
     do
     echo "Deleting bucket $l..."
-    aws s3api delete-bucket 
-    aws s3api wait bucket-not-exists 
+    aws s3api delete-bucket --bucket $l
+    aws s3api wait bucket-not-exists --bucket $l
     echo "Deleted bucket $l..."
     done
   else  
