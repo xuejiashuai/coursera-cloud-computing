@@ -49,14 +49,14 @@ else
     echo "******************************************************************************"
     echo "Creating RDS instance..."
     echo "******************************************************************************"
-    aws rds create-db-instance --db-instance-identifier  --db-instance-class db.t3.micro --engine --master-username $USERVALUE --master-user-password $PASSVALUE --allocated-storage 20 --db-name employee_database --tags="Key=assessment,Value=${7}"
+    aws rds create-db-instance --db-instance-identifier ${22} --db-instance-class db.t3.micro --engine --master-username $USERVALUE --master-user-password $PASSVALUE --allocated-storage 20 --db-name employee_database --tags="Key=assessment,Value=${7}"
     # Add wait command for db-instance available
     # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/rds/wait/db-instance-available.html
     echo "******************************************************************************"
     echo "Waiting for RDS instance: to be created..."
     echo "This might take around 5-15 minutes..."
     echo "******************************************************************************"
-    aws rds wait db-instance-available --db-instance-identifier
+    aws rds wait db-instance-available --db-instance-identifier ${22}
     echo "******************************************************************************"
     echo "RDS instance created and in the available state..."
     echo "******************************************************************************"
@@ -65,7 +65,7 @@ else
     echo "Creating RDS read-replica instance..."
     echo "******************************************************************************"
     # Append "-read-replica" to the ${22} to create the read-replica name
-    aws rds create-db-instance-read-replica --db-instance-identifier  --source-db-instance-identifier --tags="Key=assessment,Value=${7}"
+    aws rds create-db-instance-read-replica --db-instance-identifier ${22}-read-replica --source-db-instance-identifier --tags="Key=assessment,Value=${7}"
 
     # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/rds/wait/db-instance-available.html
     echo "******************************************************************************"
@@ -73,7 +73,7 @@ else
     echo "This might take another 5-15 minutes..."
     echo "Perhaps check out https://xkcd.com/303/ ..."
     echo "******************************************************************************"
-    aws rds wait db-instance-available --db-instance-identifier 
+    aws rds wait db-instance-available --db-instance-identifier ${22}-read-replica
 
     # Fetching RDS address
     # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/rds/describe-db-instances.html
