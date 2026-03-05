@@ -243,7 +243,7 @@ resource "aws_dynamodb_table" "mp2-dynamodb-table" {
   }
 
   tags = {
-    Name        = var.dynamodb-table-name
+    Name        = var.module-tag
   }
 }
 
